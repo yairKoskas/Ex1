@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 typedef struct Matrix {
     double** arr;
     int heigth;
@@ -19,7 +20,7 @@ typedef struct Matrix {
  * @return ErrorCode
  */
 ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
-    PMatrix pm = malloc(sizeof(PMatrix) * 1);
+    PMatrix pm = (PMatrix)malloc(sizeof(Matrix));
     if(pm == NULL) {
         printf("%s",error_getErrorMessage(ERROR_ALLOCATION));
         return ERROR_ALLOCATION;
@@ -36,7 +37,7 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
         pm->arr[i] = (double*)calloc(sizeof(double),width);
         if(pm->arr[i] == NULL) {
             printf("%s",error_getErrorMessage(ERROR_ALLOCATION));
-        return ERROR_ALLOCATION;
+            return ERROR_ALLOCATION;
         }
     }
     *matrix = pm;
@@ -52,10 +53,15 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
  * @return ErrorCode
  */
 ErrorCode matrix_copy(PMatrix* result, CPMatrix source){
-    PMatrix pm;
-    matrix_create(&pm,source->heigth, source->width);
-    memcpy(&pm,&source,sizeof(&source));
-    *result = pm;
+    PMatrix r;
+    matrix_create(&r,source->heigth,source->width);
+    int i,j;
+    for (i=0;i<r->heigth;++i) {
+        for(j=0;j<r->width;++j) {
+            r->arr[i][j] = source->arr[i][j];
+        }
+    }
+    *result = r;
     return ERROR_SUCCESS;
 }
 
@@ -66,6 +72,10 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source){
  */
 void matrix_destroy(PMatrix matrix) {
     if(matrix != NULL) {
+        int x;
+        for (x=0;x<matrix->heigth;++x){
+            free(matrix->arr[x]);
+        }
         free(matrix->arr);
         free(matrix);
     }
@@ -80,10 +90,10 @@ void matrix_destroy(PMatrix matrix) {
  */
 ErrorCode matrix_getHeight(CPMatrix matrix, uint32_t* result) {
     if(matrix == NULL) {
-        printf(error_getErrorMessage(ERROR_NULL_POINTER));
+        printf("%s",error_getErrorMessage(ERROR_NULL_POINTER));
         return ERROR_NULL_POINTER;
     }
-    result = &(matrix->heigth);
+    *result = matrix->heigth;
     return ERROR_SUCCESS;
 }
 
@@ -99,7 +109,7 @@ ErrorCode matrix_getWidth(CPMatrix matrix, uint32_t* result) {
         printf("%s",error_getErrorMessage(ERROR_NULL_POINTER));
         return ERROR_NULL_POINTER;
     }
-    result = &(matrix->width);
+    *result = matrix->width;
     return ERROR_SUCCESS;
 }
 
@@ -144,7 +154,7 @@ ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
         printf("%s",error_getErrorMessage(ERROR_INDEX_OUT_OF_BOUND));
         return ERROR_INDEX_OUT_OF_BOUND;
     }
-    value = &matrix->arr[rowIndex][colIndex];
+    *value = matrix->arr[rowIndex][colIndex];
     return ERROR_SUCCESS;
 }
 
