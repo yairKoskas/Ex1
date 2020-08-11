@@ -1,6 +1,7 @@
 #include "Matrix.h"
 
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 typedef struct Matrix {
     double** arr;
@@ -71,10 +72,10 @@ void matrix_destroy(PMatrix matrix) {
  */
 ErrorCode matrix_getHeight(CPMatrix matrix, uint32_t* result) {
     if(matrix == NULL) {
-        printf(error_getErrorMessage(ERROR_NULL_POINTER));
+        printf("%s",error_getErrorMessage(ERROR_NULL_POINTER));
         return ERROR_NULL_POINTER;
     }
-    result = &(matrix->heigth);
+    *result = matrix->heigth;
     return ERROR_SUCCESS;
 }
 
@@ -90,7 +91,7 @@ ErrorCode matrix_getWidth(CPMatrix matrix, uint32_t* result) {
         printf("%s",error_getErrorMessage(ERROR_NULL_POINTER));
         return ERROR_NULL_POINTER;
     }
-    result = &(matrix->width);
+    *result = matrix->width;
     return ERROR_SUCCESS;
 }
 
