@@ -1,7 +1,6 @@
 #include "Matrix.h"
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 typedef struct Matrix {
     double** arr;
@@ -20,17 +19,25 @@ typedef struct Matrix {
  * @return ErrorCode
  */
 ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
-    PMatrix pm = malloc(sizeof(Matrix));
-    pm->heigth = height;
-    pm->width = width;
+    PMatrix pm = malloc(sizeof(PMatrix) * 1);
     if(pm == NULL) {
         printf("%s",error_getErrorMessage(ERROR_ALLOCATION));
         return ERROR_ALLOCATION;
     }
-    pm->arr = (double**)calloc(sizeof(double*),height);
+    pm->width = width;
+    pm->heigth = height;
+    pm->arr = (double**)malloc(sizeof(double*) * height);
     if(pm->arr == NULL) {
         printf("%s",error_getErrorMessage(ERROR_ALLOCATION));
         return ERROR_ALLOCATION;
+    }
+    int i;
+    for (i=0;i<height;++i) {
+        pm->arr[i] = (double*)calloc(sizeof(double),width);
+        if(pm->arr[i] == NULL) {
+            printf("%s",error_getErrorMessage(ERROR_ALLOCATION));
+        return ERROR_ALLOCATION;
+        }
     }
     *matrix = pm;
     return ERROR_SUCCESS;
@@ -48,6 +55,7 @@ ErrorCode matrix_copy(PMatrix* result, CPMatrix source){
     PMatrix pm;
     matrix_create(&pm,source->heigth, source->width);
     memcpy(&pm,&source,sizeof(&source));
+    *result = pm;
     return ERROR_SUCCESS;
 }
 
@@ -72,10 +80,10 @@ void matrix_destroy(PMatrix matrix) {
  */
 ErrorCode matrix_getHeight(CPMatrix matrix, uint32_t* result) {
     if(matrix == NULL) {
-        printf("%s",error_getErrorMessage(ERROR_NULL_POINTER));
+        printf(error_getErrorMessage(ERROR_NULL_POINTER));
         return ERROR_NULL_POINTER;
     }
-    *result = matrix->heigth;
+    result = &(matrix->heigth);
     return ERROR_SUCCESS;
 }
 
@@ -91,7 +99,7 @@ ErrorCode matrix_getWidth(CPMatrix matrix, uint32_t* result) {
         printf("%s",error_getErrorMessage(ERROR_NULL_POINTER));
         return ERROR_NULL_POINTER;
     }
-    *result = matrix->width;
+    result = &(matrix->width);
     return ERROR_SUCCESS;
 }
 
