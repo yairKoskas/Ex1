@@ -20,19 +20,19 @@ typedef struct Matrix {
  * @return ErrorCode
  */
 ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
-    PMatrix pm = malloc(sizeof(PMatrix) * 1);
+    PMatrix pm = malloc(sizeof(Matrix));
+    pm->heigth = height;
+    pm->width = width;
     if(pm == NULL) {
         printf("%s",error_getErrorMessage(ERROR_ALLOCATION));
         return ERROR_ALLOCATION;
     }
-    pm->arr = calloc(sizeof(double**),1);
+    pm->arr = (double**)calloc(sizeof(double*),height);
     if(pm->arr == NULL) {
         printf("%s",error_getErrorMessage(ERROR_ALLOCATION));
         return ERROR_ALLOCATION;
     }
-    pm->width = width;
-    pm->heigth = height;
-    matrix = &pm;
+    *matrix = pm;
     return ERROR_SUCCESS;
 }
 
