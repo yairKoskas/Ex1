@@ -34,8 +34,8 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
     }
     int i;
     for (i=0;i<height;++i) {
-        pm->arr[i] = (double*)calloc(sizeof(double),width);
-        if(pm->arr[i] == NULL) {
+        (pm->arr)[i] = (double*)calloc(sizeof(double),width);
+        if((pm->arr)[i] == NULL) {
             printf("%s",error_getErrorMessage(ERROR_ALLOCATION));
             return ERROR_ALLOCATION;
         }
@@ -53,15 +53,22 @@ ErrorCode matrix_create(PMatrix* matrix, uint32_t height, uint32_t width) {
  * @return ErrorCode
  */
 ErrorCode matrix_copy(PMatrix* result, CPMatrix source){
-    PMatrix r;
-    matrix_create(&r,source->heigth,source->width);
+    if(source == NULL){
+        printf("%s",error_getErrorMessage(ERROR_NULL_POINTER));
+        return ERROR_NULL_POINTER;
+    }
+    PMatrix r = NULL;
+    ErrorCode e = matrix_create(result,source->heigth,source->width);
+    if(!error_isSuccess(e)){
+        printf("%s",error_getErrorMessage(e));
+        return e;
+    }
     int i,j;
-    for (i=0;i<r->heigth;++i) {
-        for(j=0;j<r->width;++j) {
-            r->arr[i][j] = source->arr[i][j];
+    for (i=0;i<source->heigth;++i) {
+        for (j=0;j<source->width;++j) {
+            ((*result)->arr)[i][j] = (source->arr)[i][j];
         }
     }
-    *result = r;
     return ERROR_SUCCESS;
 }
 
@@ -168,19 +175,19 @@ ErrorCode matrix_getValue(CPMatrix matrix, uint32_t rowIndex, uint32_t colIndex,
  * @return ErrorCode
  */
 ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
+    PMatrix res;
     if(lhs->heigth != rhs->heigth || lhs->width != rhs->width) {
         printf("%s",error_getErrorMessage(ERROR_MATRIX_SIZE_INCOMPATIBLE));
         return ERROR_MATRIX_SIZE_INCOMPATIBLE;
     }
-    if(result == NULL){
-        matrix_create(result,lhs->heigth,lhs->width);
-    }
+    matrix_create(&res,lhs->heigth,lhs->width);    
     int i,j;
     for (i=0;i<lhs->heigth;++i) {
         for (j=0;j<lhs->width;++j) {
-            (*result)->arr[i][j] = lhs->arr[i][j] + rhs->arr[i][j];
+            (res->arr)[i][j] = (lhs->arr)[i][j] + (rhs->arr)[i][j];
         }
     }
+    *result = res;
     return ERROR_SUCCESS;
 }
 
@@ -194,6 +201,7 @@ ErrorCode matrix_add(PMatrix* result, CPMatrix lhs, CPMatrix rhs) {
  * @return ErrorCode
  */
 ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs){
+    PMatrix res;
     if(lhs->width != rhs->heigth){
         printf("%s",error_getErrorMessage(ERROR_MATRIX_SIZE_INCOMPATIBLE));
         return ERROR_MATRIX_SIZE_INCOMPATIBLE;
@@ -201,14 +209,16 @@ ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs){
     if(result == NULL){
         matrix_create(result,lhs->heigth,lhs->width);
     }
+    matrix_create(&res,lhs->heigth,rhs->width);
     int i,j,k;
     for (i=0;i<lhs->heigth;++i) {
-        for (j=0;j<lhs->width;++j) {
+        for (j=0;j<rhs->width;++j) {
             for(k=0;k<lhs->width;++k) {
-                (*result)->arr[i][j] += lhs->arr[i][k] * rhs->arr[k][j];
+                (res->arr)[i][j] += (lhs->arr)[i][k] * (rhs->arr)[k][j];
             }
         }
     }
+    *result = res;
     return ERROR_SUCCESS;
 }
 
@@ -229,7 +239,7 @@ ErrorCode matrix_multiplyWithScalar(PMatrix matrix, double scalar){
     int i,j;
     for (i=0;i<matrix->heigth;++i) {
         for (j=0;j<matrix->width;++j) {
-            matrix->arr[i][j] = matrix->arr[i][j] * scalar;
+            (matrix->arr)[i][j] = (matrix->arr)[i][j] * scalar;
         }
     }
     return ERROR_SUCCESS;
