@@ -129,7 +129,6 @@ ErrorCode matrix_multiplyMatrices(PMatrix* result, CPMatrix lhs, CPMatrix rhs){
     if ( !error_isSuccess(e) ) {
         return e;
     }
-    int i,j,k;
     for (int i = 0 ; i < lhs->heigth ; ++i ) {
         for (int j = 0 ; j < rhs->width ; ++j ) {
             //matrix multiplication definition
