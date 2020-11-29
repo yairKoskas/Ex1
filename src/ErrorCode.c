@@ -9,7 +9,7 @@
  * @return whether the error code indicates a success or not.
  */
 bool error_isSuccess(ErrorCode code){
-    return code == ERROR_SUCCESS ? true : false;
+    return code == ERROR_SUCCESS;
 }
 
 /**
@@ -32,6 +32,6 @@ const char* error_getErrorMessage(ErrorCode code){
     case ERROR_NULL_POINTER:
         return "Error, Given pointer is null";
     default:
-        return "";
+        return "Undefined Error";
     }
 }
